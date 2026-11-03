@@ -2,7 +2,7 @@
 
 Auth-first multi-tenant coaching center management system: Django REST Framework + PostgreSQL backend and React/Vite frontend. Each user belongs to one shared-schema `Center`; roles are admin, teacher, and student.
 
-## Structure
+## Structure of the project
 
 - `backend/config`: Django settings and URLs
 - `backend/apps/core`: shared permissions and health endpoint
