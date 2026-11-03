@@ -1,0 +1,5 @@
+const steps = [['01', 'A center is set up by its admin', 'Your center admin creates the center and sets up the workspace.'], ['02', 'People join with the center code', 'Admins add teachers. Students self-register using their center code.'], ['03', 'Everyone gets their own dashboard', 'Each role sees the tools and information they need to do their work.']]
+
+export default function HowItWorks() {
+  return <section className="landing-section how-section" id="how-it-works"><div className="landing-container"><div className="section-intro reveal"><span className="section-label">How it works</span><h2>From scattered work to one shared system</h2><p>Start small, invite your team, and build a better daily rhythm.</p></div><div className="steps-grid">{steps.map(([number, title, copy], index) => <article className="step-card reveal" key={number}><div className="step-number">{number}</div>{index < steps.length - 1 && <div className="step-line" aria-hidden="true" />}<h3>{title}</h3><p>{copy}</p></article>)}</div></div></section>
+}

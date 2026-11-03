@@ -1,0 +1,5 @@
+const problems = [['01', 'Manual attendance', 'Paper sheets make it hard to see who is really attending.'], ['02', 'Fee tracking mistakes', 'Missed entries and scattered receipts create unnecessary follow-up.'], ['03', 'Scattered records', 'Important student and batch information lives in too many places.'], ['04', 'Missed notices', 'Updates get buried in busy WhatsApp groups and conversations.'], ['05', 'Hard-to-make reports', 'You spend time collecting data instead of understanding it.']]
+
+export default function ProblemSection() {
+  return <section className="landing-section problem-section"><div className="landing-container"><div className="section-intro reveal"><span className="section-label">The everyday challenge</span><h2>Still running your center on paper and WhatsApp groups?</h2><p>Small centers deserve better tools than a patchwork of notebooks, chats and spreadsheets.</p></div><div className="problem-grid">{problems.map(([number, title, copy]) => <article className="problem-card reveal" key={title}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}</div></div></section>
+}

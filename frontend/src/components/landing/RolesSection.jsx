@@ -1,0 +1,5 @@
+const roles = [['Admin', 'Manages the center, creates teachers, and oversees fees and reports.', 'ADM', 'role-admin'], ['Teacher', 'Records attendance, handles exams and shares notices for their batches.', 'TEA', 'role-teacher'], ['Student', 'Self-registers with the center code and views attendance, fees, results and notices.', 'STU', 'role-student']]
+
+export default function RolesSection() {
+  return <section className="landing-section roles-section" id="roles"><div className="landing-container"><div className="section-intro centered reveal"><span className="section-label">Made for every role</span><h2>A clearer day for everyone at your center</h2><p>One system, with the right view for each person.</p></div><div className="roles-grid">{roles.map(([title, copy, code, className]) => <article className={`role-card reveal ${className}`} key={title}><div className="role-avatar">{code}</div><span className="role-tag">{title}</span><h3>{title}</h3><p>{copy}</p>{title === 'Student' && <small>Students join using a center code.</small>}</article>)}</div></div></section>
+}
