@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.conf import settings
+from django.conf.urls.static import static
 
 from apps.accounts.views import StudentListView, TeacherListCreateView
 from apps.core.dashboard import AdminDashboardView, StudentDashboardView, TeacherDashboardView
@@ -20,6 +22,8 @@ urlpatterns = [
     path("api/academics/", include("apps.academics.urls")),
     path("api/attendance/", include("apps.attendance.urls")),
     path("api/fees/", include("apps.fees.urls")),
+    path("api/fees/", include("apps.fees.urls")),
     path("api/exams/", include("apps.exams.urls")),
     path("api/notices/", include("apps.notices.urls")),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

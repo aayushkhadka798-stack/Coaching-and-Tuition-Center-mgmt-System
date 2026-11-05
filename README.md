@@ -33,6 +33,15 @@ Set database credentials in `backend/.env`. The Django admin site is `/django-ad
 
 Interactive API documentation is available at `http://127.0.0.1:8000/api/docs/` (Swagger UI), with the raw OpenAPI schema at `/api/schema/` and ReDoc at `/api/redoc/`.
 
+### Google sign-in configuration
+
+Create a Web application OAuth client in Google Cloud Console. Add these Authorized JavaScript origins:
+
+- `http://localhost:5173`
+- `http://127.0.0.1:5173`
+
+Leave Authorized redirect URIs empty. Put the client ID in both `backend/.env` as `GOOGLE_CLIENT_ID` and `frontend/.env` as `VITE_GOOGLE_CLIENT_ID`. The frontend hides Google sign-in when the Vite variable is missing. While the Google consent screen is in Testing mode, only listed test users can sign in.
+
 ### Frontend
 
 ```powershell

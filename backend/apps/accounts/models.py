@@ -46,11 +46,13 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(unique=True)
+    google_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STUDENT)
     center = models.ForeignKey(
         Center, on_delete=models.PROTECT, null=True, blank=True, related_name="users"
     )
     phone = models.CharField(max_length=30, blank=True)
+    profile_photo = models.ImageField(upload_to="profile_photos/", null=True, blank=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = UserManager()
@@ -59,6 +61,19 @@ class User(AbstractUser):
         super().clean()
         if not self.is_superuser and self.center_id is None:
             raise ValidationError({"center": "Non-superusers must belong to a center."})
+
+
+class PasswordResetOTP(models.Model):
+    email = models.EmailField()
+    code_hash = models.CharField(max_length=128)
+    purpose = models.CharField(max_length=30)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=("email", "purpose", "created_at"))]
 
 
 class StudentProfile(models.Model):

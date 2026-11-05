@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "django_filters",
     "drf_spectacular",
     "rest_framework_simplejwt.token_blacklist",
     "apps.core",
@@ -74,13 +75,35 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="http://localhost:5173", cast=Csv())
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID", default="")
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = config("EMAIL_HOST", default="")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=config("EMAIL_FROM", default=""))
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=config("EMAIL_PASSWORD", default=""))
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=15, cast=int)
+ESEWA_PRODUCT_CODE = config("ESEWA_PRODUCT_CODE", default="")
+ESEWA_SECRET_KEY = config("ESEWA_SECRET_KEY", default="")
+ESEWA_GATEWAY_URL = config("ESEWA_GATEWAY_URL", default="https://rc-epay.esewa.com.np/api/epay/main/v2/form")
+ESEWA_STATUS_URL = config("ESEWA_STATUS_URL", default="https://rc-epay.esewa.com.np/api/epay/transaction/status/")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ),
+    "DEFAULT_PAGINATION_CLASS": "config.pagination.StandardPagination",
+    "PAGE_SIZE": 10,
     "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.AnonRateThrottle",),
     "DEFAULT_THROTTLE_RATES": {"anon": "100/hour", "user": "1000/hour"},
 }
