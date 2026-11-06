@@ -20,7 +20,7 @@ const roleConfig = {
   student: {
     label: 'Student workspace',
     links: [['Dashboard', 'dashboard', 'home'], ['Attendance', 'attendance', 'calendar'], ['Fees', 'fees', 'wallet'], ['Results', 'results', 'chart']],
-    metrics: [['Attendance', '94.2%', '+2.8%', 'calendar', 'blue'], ['Current courses', '5', '+1', 'book', 'green'], ['Pending fees', '$240', 'Due soon', 'wallet', 'orange'], ['Average result', '88.6%', '+4.2%', 'chart', 'purple']],
+    metrics: [['Attendance', 'attendance_rate', 'Live', 'calendar', 'blue'], ['Current batches', 'active_batches', 'Live', 'book', 'green'], ['Outstanding fees', 'outstanding_fees', 'NPR', 'wallet', 'orange'], ['Latest result', 'latest_result', 'Live', 'chart', 'purple']],
   },
 }
 
@@ -28,6 +28,8 @@ function formatMetric(value, key) {
   if (value === null || value === undefined) return 'No data'
   if (key === 'attendance_rate') return `${value}%`
   if (key === 'monthly_revenue') return `NPR ${Number(value).toLocaleString('en-IN')}`
+  if (key === 'outstanding_fees') return `NPR ${Number(value).toLocaleString('en-IN')}`
+  if (key === 'latest_result') return `${value}%`
   return Number(value).toLocaleString('en-IN')
 }
 

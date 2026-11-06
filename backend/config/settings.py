@@ -88,10 +88,12 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=config("EMAIL_FROM", default
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=config("EMAIL_PASSWORD", default=""))
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
 EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=15, cast=int)
+ESEWA_FORM_URL = config("ESEWA_FORM_URL", default=config("ESEWA_GATEWAY_URL", default="https://rc-epay.esewa.com.np/api/epay/main/v2/form"))
 ESEWA_PRODUCT_CODE = config("ESEWA_PRODUCT_CODE", default="")
 ESEWA_SECRET_KEY = config("ESEWA_SECRET_KEY", default="")
-ESEWA_GATEWAY_URL = config("ESEWA_GATEWAY_URL", default="https://rc-epay.esewa.com.np/api/epay/main/v2/form")
 ESEWA_STATUS_URL = config("ESEWA_STATUS_URL", default="https://rc-epay.esewa.com.np/api/epay/transaction/status/")
+ESEWA_SUCCESS_URL = config("ESEWA_SUCCESS_URL", default="http://localhost:5173/student/payments/esewa/success")
+ESEWA_FAILURE_URL = config("ESEWA_FAILURE_URL", default="http://localhost:5173/student/payments/esewa/failure")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -105,7 +107,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "config.pagination.StandardPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.AnonRateThrottle",),
-    "DEFAULT_THROTTLE_RATES": {"anon": "100/hour", "user": "1000/hour"},
+    "DEFAULT_THROTTLE_RATES": {"anon": "100/hour", "user": "1000/hour", "esewa": "30/minute"},
 }
 SPECTACULAR_SETTINGS = {
     "TITLE": "Coaching Management API",

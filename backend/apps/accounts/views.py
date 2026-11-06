@@ -9,6 +9,7 @@ from datetime import timedelta
 import secrets
 import string
 from rest_framework import generics, status
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -19,6 +20,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from drf_spectacular.utils import extend_schema, OpenApiTypes
 
 from apps.core.permissions import IsAdmin
+from apps.core.mixins import CenterScopedQuerysetMixin
 
 from .models import Center, PasswordResetOTP, StudentProfile, User
 from .services.google_auth import GoogleTokenError, verify_google_credential
@@ -297,15 +299,22 @@ class ChangePasswordConfirmView(APIView):
         return Response({"detail": "Password changed successfully."})
 
 
-class TeacherListCreateView(generics.ListCreateAPIView):
+class ConflictError(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "This record cannot be deleted because it is in use."
+    default_code = "conflict"
+
+
+class TeacherListCreateView(CenterScopedQuerysetMixin, generics.ListCreateAPIView):
     permission_classes = [IsAdmin]
+    queryset = User.objects.select_related("teacher_profile")
     filterset_fields = ["is_active"]
     search_fields = ["first_name", "last_name", "email", "phone", "teacher_profile__qualification", "teacher_profile__specialization"]
     ordering_fields = ["first_name", "last_name", "email", "date_joined", "is_active"]
     ordering = ["first_name", "last_name"]
 
     def get_queryset(self):
-        return User.objects.filter(center=self.request.user.center, role=User.Role.TEACHER).select_related("teacher_profile")
+        return super().get_queryset().filter(role=User.Role.TEACHER)
 
     def get_serializer_class(self):
         return TeacherCreateSerializer if self.request.method == "POST" else TeacherReadSerializer
@@ -319,12 +328,13 @@ class TeacherListCreateView(generics.ListCreateAPIView):
         return Response(response, status=status.HTTP_201_CREATED)
 
 
-class TeacherDetailView(generics.RetrieveUpdateDestroyAPIView):
+class TeacherDetailView(CenterScopedQuerysetMixin, generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin]
     lookup_url_kwarg = "pk"
+    queryset = User.objects.select_related("teacher_profile")
 
     def get_queryset(self):
-        return User.objects.filter(center=self.request.user.center, role=User.Role.TEACHER).select_related("teacher_profile")
+        return super().get_queryset().filter(role=User.Role.TEACHER)
 
     def get_serializer_class(self):
         if self.request.method in {"PATCH", "PUT"}:
@@ -339,8 +349,7 @@ class TeacherDetailView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         batches = getattr(instance, "batches", None)
         if batches is not None and batches.exists():
-            from rest_framework.exceptions import ValidationError
-            raise ValidationError({"detail": "Teacher cannot be deleted while assigned to batches."})
+            raise ConflictError({"detail": "Teacher cannot be deleted while assigned to batches."})
         instance.delete()
 
 

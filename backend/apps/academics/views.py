@@ -1,9 +1,9 @@
-from rest_framework import viewsets
+from rest_framework import generics, viewsets
 
 from apps.core.permissions import IsAdmin, IsAdminOrTeacher, IsStudent
 
 from .models import Batch, BatchSchedule, Course, Enrollment
-from .serializers import BatchScheduleSerializer, BatchSerializer, CourseSerializer, EnrollmentSerializer
+from .serializers import BatchScheduleSerializer, BatchSerializer, CourseSerializer, EnrollmentSerializer, StudentEnrollmentSerializer
 
 
 class CenterScopedViewSet(viewsets.ModelViewSet):
@@ -69,8 +69,20 @@ class EnrollmentViewSet(CenterScopedViewSet):
 
 
 class StudentEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = EnrollmentSerializer
+    serializer_class = StudentEnrollmentSerializer
     permission_classes = [IsStudent]
 
     def get_queryset(self):
-        return Enrollment.objects.filter(center=self.request.user.center, student=self.request.user).select_related("batch", "batch__course")
+        return Enrollment.objects.filter(center=self.request.user.center, student=self.request.user).select_related("batch", "batch__course", "batch__teacher").prefetch_related("batch__schedules")
+
+
+class StudentTimetableView(generics.ListAPIView):
+    permission_classes = [IsStudent]
+    serializer_class = BatchScheduleSerializer
+
+    def get_queryset(self):
+        return BatchSchedule.objects.filter(
+            batch__center=self.request.user.center,
+            batch__enrollments__student=self.request.user,
+            batch__enrollments__status=Enrollment.Status.ACTIVE,
+        ).select_related("batch").order_by("day_of_week", "start_time").distinct()

@@ -60,3 +60,22 @@ npm run dev
 | Student | `/login` or `/register` | `/student/dashboard` |
 
 Wrong-role requests return 403 from the API and redirect to `/unauthorized` in the frontend.
+
+Student portal pages are available at `/student/dashboard`, `/student/profile`, `/student/batches`, `/student/timetable`, `/student/attendance`, `/student/fees`, `/student/results`, `/student/notices`, and `/student/settings`. These pages show center-scoped data derived from the authenticated student and render empty states until administrators or teachers create the related records.
+
+### eSewa Sandbox payments
+
+Copy the eSewa values into `backend/.env` (the secret is server-only and must never be added to frontend environment files):
+
+```env
+ESEWA_FORM_URL=https://rc-epay.esewa.com.np/api/epay/main/v2/form
+ESEWA_STATUS_URL=https://rc-epay.esewa.com.np/api/epay/transaction/status/
+ESEWA_SECRET_KEY=<sandbox-secret-from-esewa>
+ESEWA_PRODUCT_CODE=EPAYTEST
+ESEWA_SUCCESS_URL=http://localhost:5173/student/payments/esewa/success
+ESEWA_FAILURE_URL=http://localhost:5173/student/payments/esewa/failure
+```
+
+Students can pay an unpaid or partial fee from **My fees**. The server signs the required ePay v2 fields, verifies the Base64 success response, calls the eSewa status API, and records an idempotent `eSewa` payment. Administrators can review online transactions from **Payment tracking → Online payments**. Existing cash and bank payment records remain supported.
+
+For sandbox testing, use the test credentials provided by eSewa for the configured sandbox environment. Production requires a merchant account, production product code and secret, and production form/status URLs; do not reuse sandbox credentials.
