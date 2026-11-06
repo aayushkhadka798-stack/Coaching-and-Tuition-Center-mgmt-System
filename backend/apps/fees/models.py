@@ -37,6 +37,33 @@ class Fee(models.Model):
         indexes = [models.Index(fields=("center", "status", "due_date")), models.Index(fields=("student", "status"))]
 
 
+class EsewaTransaction(models.Model):
+    class Status(models.TextChoices):
+        INITIATED = "INITIATED", "Initiated"
+        COMPLETE = "COMPLETE", "Complete"
+        FAILED = "FAILED", "Failed"
+        PENDING = "PENDING", "Pending"
+        CANCELED = "CANCELED", "Canceled"
+
+    center = models.ForeignKey("accounts.Center", on_delete=models.PROTECT, related_name="esewa_transactions")
+    fee = models.ForeignKey(Fee, on_delete=models.PROTECT, related_name="esewa_transactions")
+    student = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="esewa_transactions")
+    transaction_uuid = models.CharField(max_length=80, unique=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.INITIATED)
+    esewa_transaction_code = models.CharField(max_length=150, blank=True)
+    raw_response = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=("center", "status", "created_at")),
+            models.Index(fields=("student", "status", "created_at")),
+        ]
+
+
 class Payment(models.Model):
     class Status(models.TextChoices):
         INITIATED = "initiated", "Initiated"
@@ -46,14 +73,23 @@ class Payment(models.Model):
         FAILED = "failed", "Failed"
         ERROR = "error", "Error"
 
+    class Method(models.TextChoices):
+        CASH = "cash", "Cash"
+        BANK = "bank", "Bank"
+        ONLINE = "esewa", "eSewa"
+
     fee = models.ForeignKey(Fee, on_delete=models.PROTECT, related_name="payments")
     transaction_uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.INITIATED)
-    product_code = models.CharField(max_length=100)
+    product_code = models.CharField(max_length=100, blank=True, default="")
     gateway_reference = models.CharField(max_length=150, blank=True)
+    method = models.CharField(max_length=20, choices=Method.choices, default=Method.CASH)
+    esewa_transaction = models.OneToOneField(EsewaTransaction, null=True, blank=True, on_delete=models.PROTECT, related_name="payment")
+    transaction_reference = models.CharField(max_length=150, blank=True)
     error_message = models.TextField(blank=True)
-    initiated_by = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="initiated_payments")
+    initiated_by = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="initiated_payments", null=True, blank=True)
+    received_by = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="received_payments", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

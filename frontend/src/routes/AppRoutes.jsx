@@ -16,6 +16,12 @@ import ProfilePage from '../pages/ProfilePage'
 import ForgotPassword from '../pages/auth/ForgotPassword'
 import FeesPage from '../pages/student/FeesPage'
 import PaymentsPage from '../pages/admin/payments/PaymentsPage'
+import { EsewaFailurePage, EsewaSuccessPage } from '../pages/student/EsewaResultPage'
+import StudentBatchesPage from '../pages/student/StudentBatchesPage'
+import StudentTimetablePage from '../pages/student/StudentTimetablePage'
+import StudentAttendancePage from '../pages/student/StudentAttendancePage'
+import StudentResultsPage from '../pages/student/StudentResultsPage'
+import StudentNoticesPage from '../pages/student/StudentNoticesPage'
 export default function AppRoutes() {
   return <BrowserRouter><Routes>
     <Route path="/" element={<LandingPage />} />
@@ -25,7 +31,7 @@ export default function AppRoutes() {
     <Route element={<ProtectedRoute allowedRoles={['admin']} />}><Route path="/admin/dashboard" element={<Dashboard role="admin" />} /></Route>
     <Route element={<ProtectedRoute allowedRoles={['admin']} />}><Route path="/admin/teachers" element={<TeachersPage />} /><Route path="/admin/students" element={<StudentsPage />} /><Route path="/admin/courses" element={<ResourceListPage type="courses" />} /><Route path="/admin/batches" element={<ResourceListPage type="batches" />} /><Route path="/admin/enrollments" element={<EnrollmentsPage />} /><Route path="/admin/fees" element={<ModulePage role="admin" title="Fees" description="Manage fee records." />} /><Route path="/admin/payments" element={<PaymentsPage />} /><Route path="/admin/notices" element={<ModulePage role="admin" title="Notices" description="Publish center notices." />} /></Route>
     <Route element={<ProtectedRoute allowedRoles={['teacher']} />}><Route path="/teacher/dashboard" element={<Dashboard role="teacher" />} /><Route path="/teacher/batches" element={<ModulePage role="teacher" title="Batches" description="View assigned batches." />} /><Route path="/teacher/attendance" element={<ModulePage role="teacher" title="Attendance" description="Attendance tools will appear here." />} /><Route path="/teacher/exams" element={<ModulePage role="teacher" title="Exams" description="Exam tools will appear here." />} /></Route>
-    <Route element={<ProtectedRoute allowedRoles={['student']} />}><Route path="/student/dashboard" element={<Dashboard role="student" />} /><Route path="/student/attendance" element={<ModulePage role="student" title="Attendance" description="Review your attendance." />} /><Route path="/student/fees" element={<FeesPage />} /><Route path="/student/results" element={<ModulePage role="student" title="Results" description="Review your results." />} /></Route>
+    <Route element={<ProtectedRoute allowedRoles={['student']} />}><Route path="/student/dashboard" element={<Dashboard role="student" />} /><Route path="/student/batches" element={<StudentBatchesPage />} /><Route path="/student/timetable" element={<StudentTimetablePage />} /><Route path="/student/attendance" element={<StudentAttendancePage />} /><Route path="/student/fees" element={<FeesPage />} /><Route path="/student/payments/esewa/success" element={<EsewaSuccessPage />} /><Route path="/student/payments/esewa/failure" element={<EsewaFailurePage />} /><Route path="/student/results" element={<StudentResultsPage />} /><Route path="/student/notices" element={<StudentNoticesPage />} /><Route path="/student/settings" element={<ProfilePage />} /></Route>
     <Route path="*" element={<Navigate to="/login" replace />} />
   </Routes></BrowserRouter>
 }

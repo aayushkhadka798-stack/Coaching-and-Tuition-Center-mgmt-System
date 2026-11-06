@@ -54,14 +54,31 @@ class DashboardView(APIView):
             activity = []
         else:
             student_enrollments = enrollments.filter(student=request.user)
+            from apps.attendance.models import Attendance
+            from apps.fees.models import Fee
+            from apps.exams.models import Result
+            from apps.notices.models import Notice
+            attendance = Attendance.objects.filter(enrollment__student=request.user)
+            attendance_total = attendance.count()
+            attendance_rate = round((attendance.filter(status__in=["present", "late"]).count() / attendance_total) * 100, 2) if attendance_total else None
+            outstanding = sum((fee.balance for fee in Fee.objects.filter(center=center, student=request.user)), 0)
+            latest_result = Result.objects.filter(student=request.user).select_related("exam").order_by("-exam__exam_date").first()
+            unread_notices = Notice.objects.filter(center=center, target_role__in=["all", "student"]).exclude(reads__user=request.user).count()
             metrics = {
                 "students": None,
                 "teachers": None,
                 "active_batches": student_enrollments.values("batch_id").distinct().count(),
-                "monthly_revenue": None,
-                "attendance_rate": None,
+                "monthly_revenue": str(outstanding),
+                "attendance_rate": attendance_rate,
+                "outstanding_fees": str(outstanding),
+                "latest_result": latest_result.percentage if latest_result else None,
+                "unread_notices": unread_notices,
             }
-            activity = []
+            activity = [{
+                "title": "Latest result",
+                "detail": f"{latest_result.exam.title}: {latest_result.grade}" if latest_result else "No results yet",
+                "created_at": latest_result.exam.exam_date if latest_result else center.created_at,
+            }]
 
         return Response(
             {

@@ -13,7 +13,7 @@ export const roleNavigation = {
   },
   student: {
     label: 'Student workspace',
-    links: [['Dashboard', 'dashboard', 'home'], ['Attendance', 'attendance', 'calendar'], ['Fees', 'fees', 'wallet'], ['Results', 'results', 'chart']],
+    links: [['Dashboard', 'dashboard', 'home'], ['My batches', 'batches', 'book'], ['Timetable', 'timetable', 'calendar'], ['Attendance', 'attendance', 'users'], ['Fees & payments', 'fees', 'wallet'], ['Results', 'results', 'chart'], ['Notices', 'notices', 'bell'], ['Settings', 'settings', 'lock']],
   },
 }
 
@@ -27,6 +27,7 @@ export function DashboardSidebar({ role, user, mobileOpen, setMobileOpen, active
     <nav>
       {config.links.map(([label, path, icon]) => <Link className={activePath === path ? 'selected' : ''} key={path} to={`/${role}/${path}`} onClick={() => setMobileOpen(false)}><Icon name={icon} size={17} />{label}</Link>)}
       <Link className={activePath === 'profile' ? 'selected' : ''} to={`/${role}/profile`} onClick={() => setMobileOpen(false)}><Icon name="user" size={17} />Profile</Link>
+      {role === 'admin' && <a className="sidebar-view-site" href="/" target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}><Icon name="eye" size={17} />View site</a>}
     </nav>
     <div className="sidebar-footer">
       <div className="mini-avatar">{displayName(user)[0].toUpperCase()}</div>

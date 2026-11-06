@@ -13,9 +13,16 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class BatchScheduleSerializer(serializers.ModelSerializer):
+    batch_name = serializers.CharField(source="batch.name", read_only=True)
+    course_name = serializers.CharField(source="batch.course.name", read_only=True)
+    teacher_name = serializers.SerializerMethodField()
+
+    def get_teacher_name(self, obj):
+        return obj.batch.teacher.get_full_name() or obj.batch.teacher.email
+
     class Meta:
         model = BatchSchedule
-        fields = ("id", "batch", "day_of_week", "start_time", "end_time", "room")
+        fields = ("id", "batch", "batch_name", "course_name", "teacher_name", "day_of_week", "start_time", "end_time", "room")
         read_only_fields = ("id",)
 
     def validate_batch(self, value):
@@ -58,3 +65,20 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         if batch and batch.center_id != center.id:
             raise serializers.ValidationError({"batch": "Batch must belong to your center."})
         return attrs
+
+
+class StudentEnrollmentSerializer(serializers.ModelSerializer):
+    course = serializers.CharField(source="batch.course.name", read_only=True)
+    batch_name = serializers.CharField(source="batch.name", read_only=True)
+    teacher = serializers.SerializerMethodField()
+    schedules = BatchScheduleSerializer(source="batch.schedules", many=True, read_only=True)
+
+    class Meta:
+        model = Enrollment
+        fields = ("id", "batch", "batch_name", "course", "teacher", "start_date", "end_date", "status", "enrolled_on", "schedules")
+
+    start_date = serializers.DateField(source="batch.start_date", read_only=True)
+    end_date = serializers.DateField(source="batch.end_date", read_only=True)
+
+    def get_teacher(self, obj):
+        return {"id": obj.batch.teacher_id, "name": obj.batch.teacher.get_full_name() or obj.batch.teacher.email}
